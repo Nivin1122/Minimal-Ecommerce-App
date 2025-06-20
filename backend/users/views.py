@@ -95,12 +95,12 @@ def logout(request):
         return Response({'success':False})
     
 
-@api_view
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def is_authenticated(request):
     return Response({'authenticated':True})
 
-# In your views.py, update the register view:
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
