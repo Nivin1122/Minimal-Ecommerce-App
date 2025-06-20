@@ -7,11 +7,14 @@ import { BrowserRouter as Router,Routes,Route } from 'react-router-dom'
 import Signup from './routes/Signup'
 import Dashboard from './routes/Dashboard'
 import PrivateRoute from './privateRoutes/PrivateRoute'
+// import AdminLogin from './admincomponents/AdminLogin'
+import AdminLogin from './admincomponents/auth/AdminLogin'
+import AdminDashboard from './admincomponents/pages/AdminDashboard'
+import AdminPrivateRoute from './privateRoutes/AdminPrivateRoute'
 
 
 
 function App() {
-  
 
   return (
     <>
@@ -23,9 +26,15 @@ function App() {
             <PrivateRoute>
               <Dashboard />
             </PrivateRoute>
-          }
-
-        />
+            
+            }/>
+            <Route path='admin/login' element={<AdminLogin />}/>
+            <Route path="/admin/dashboard" element={
+              <AdminPrivateRoute>
+                <AdminDashboard />
+              </AdminPrivateRoute>
+            }/>
+        
           </Routes>
         </Router>
     </>
