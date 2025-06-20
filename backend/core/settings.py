@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_simplejwt",
     "users",
+    "admindashboard",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,7 @@ REST_FRAMEWORK = {
   
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'users.authentication.CookiesJWTAuthentication',
+        'admindashboard.admin_authentication.AdminCookiesJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
     'rest_framework.permissions.IsAuthenticated',
