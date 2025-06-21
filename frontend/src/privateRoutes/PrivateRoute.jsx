@@ -7,7 +7,7 @@ const PrivateRoute = ({ children }) => {
   const [isAuth, setIsAuth] = useState(null);
 
   useEffect(() => {
-    axiosInstance.get('/authenticated/')
+    axiosInstance.get('users/authenticated/')
       .then(res => setIsAuth(res.data.authenticated))
       .catch(() => setIsAuth(false));
   }, []);

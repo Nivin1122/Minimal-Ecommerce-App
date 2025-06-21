@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "admindashboard",
+    "products",
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,10 @@ REST_FRAMEWORK = {
     'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 ROOT_URLCONF = 'core.urls'
 
