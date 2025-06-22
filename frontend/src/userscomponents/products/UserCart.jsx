@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../endpoints/axiosInstance';
+import { useNavigate } from 'react-router-dom';
+
 
 const UserCart = () => {
   const [cart, setCart] = useState([]);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
@@ -59,6 +62,7 @@ const UserCart = () => {
           </div>
         ))
       )}
+      <button onClick={() => navigate('/user/checkout')}>Proceed To Checkout</button>
     </div>
   );
 };

@@ -17,7 +17,9 @@ import AdminProductList from './admincomponents/products/AdminProductList'
 import AdminEditProduct from './admincomponents/products/AdminEditProduct'
 import UserProductList from './userscomponents/products/UserProductList'
 import UserCart from './userscomponents/products/UserCart'
-import UserAddress from './userscomponents/products/UserAddress'
+import UserAddress from './userscomponents/orders/UserAddress'
+import UserCheckout from './userscomponents/orders/UserCheckout'
+import UserOrders from './userscomponents/orders/UserOrders'
 
 
 function App() {
@@ -52,6 +54,20 @@ function App() {
                 <UserAddress />
               </PrivateRoute>
               }/>
+
+            <Route path="/user/checkout" element={
+              <PrivateRoute>
+                <UserCheckout />
+              </PrivateRoute>
+              } />
+
+            <Route path="/user/orders" element={
+              <PrivateRoute>
+                <UserOrders />
+              </PrivateRoute>
+              }/>
+      
+
       
 
             {/* admin */}
