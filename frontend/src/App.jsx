@@ -17,6 +17,7 @@ import AdminProductList from './admincomponents/products/AdminProductList'
 import AdminEditProduct from './admincomponents/products/AdminEditProduct'
 import UserProductList from './userscomponents/products/UserProductList'
 import UserCart from './userscomponents/products/UserCart'
+import UserAddress from './userscomponents/products/UserAddress'
 
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
                 <UserCart />
               </PrivateRoute>
             }/>
+
+            
+            <Route path="/user/addresses" element={
+              <PrivateRoute>
+                <UserAddress />
+              </PrivateRoute>
+              }/>
+      
 
             {/* admin */}
             <Route path='admin/login' element={<AdminLogin />}/>

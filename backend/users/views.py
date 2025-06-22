@@ -4,10 +4,12 @@ from rest_framework.decorators import api_view,permission_classes
 
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
-from .models import Note
-from .serializer import NoteSerializer,UserRegistrationSerializer
+from .serializer import UserRegistrationSerializer
 
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
+
+from .models import Address
+from .serializer import AddressSerializer
 
 
 # Create your views here.
@@ -122,8 +124,29 @@ def register(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_notes(request):
-    user = request.user
-    notes = Note.objects.filter(owner=user)
-    serializer = NoteSerializer(notes,many=True)
-    return Response(serializer.data)
+def list_addresses(request):
+    addresses = Address.objects.filter(user=request.user)
+    serializer = AddressSerializer(addresses, many=True)
+    return Response({'addresses': serializer.data})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_address(request):
+    serializer = AddressSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response({'success': True, 'message': 'Address added'})
+    return Response({'success': False, 'errors': serializer.errors}, status=400)
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_address(request, address_id):
+    try:
+        address = Address.objects.get(id=address_id, user=request.user)
+        address.delete()
+        return Response({'success': True, 'message': 'Address deleted'})
+    except Address.DoesNotExist:
+        return Response({'success': False, 'message': 'Address not found'}, status=404)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Note
 from django.contrib.auth.models import User
+from .models import Address
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -30,8 +30,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class NoteSerializer(serializers.ModelSerializer):
 
+class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Note
-        fields = ['id','description']
+        model = Address
+        fields = '__all__'
+        read_only_fields = ['user', 'created_at']
