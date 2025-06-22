@@ -14,8 +14,9 @@ import AdminDashboard from './admincomponents/pages/AdminDashboard'
 import AdminPrivateRoute from './privateRoutes/AdminPrivateRoute'
 import AdminAddProduct from './admincomponents/products/AdminAddProduct'
 import AdminProductList from './admincomponents/products/AdminProductList'
+import AdminEditProduct from './admincomponents/products/AdminEditProduct'
 import UserProductList from './userscomponents/products/UserProductList'
-
+import UserCart from './userscomponents/products/UserCart'
 
 
 function App() {
@@ -38,6 +39,12 @@ function App() {
               </PrivateRoute>
             }/>
 
+            <Route path="/cart" element={
+              <PrivateRoute>
+                <UserCart />
+              </PrivateRoute>
+            }/>
+
             {/* admin */}
             <Route path='admin/login' element={<AdminLogin />}/>
             <Route path="/admin/dashboard" element={
@@ -55,6 +62,12 @@ function App() {
             <Route path="/admin/products" element={
                 <AdminPrivateRoute>
                   <AdminProductList />
+                </AdminPrivateRoute>
+              }/>
+
+            <Route path="/admin/products/edit/:id" element={
+                <AdminPrivateRoute>
+                  <AdminEditProduct />
                 </AdminPrivateRoute>
               }/>
         
