@@ -3,9 +3,9 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer,CategorySerializer
 from rest_framework.permissions import AllowAny,IsAuthenticated
-from .models import CartItem
+from .models import CartItem,Category
 from .serializers import CartItemSerializer
 
 
@@ -119,3 +119,35 @@ def update_cart_quantity(request, item_id):
         return Response({'success': True, 'message': 'Quantity updated'})
     except CartItem.DoesNotExist:
         return Response({'success': False, 'message': 'Item not found'}, status=404)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def add_category(request):
+    serializer = CategorySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'success': True, 'message': 'Category added successfully'})
+    return Response({'success': False, 'errors': serializer.errors}, status=400)
+
+
+@api_view(['GET'])
+def list_categories(request):
+    categories = Category.objects.all()
+    serializer = CategorySerializer(categories, many=True)
+    return Response({'categories': serializer.data})
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def edit_category(request, pk):
+    try:
+        category = Category.objects.get(id=pk)
+    except Category.DoesNotExist:
+        return Response({'success': False, 'message': 'Category not found'}, status=404)
+    
+    serializer = CategorySerializer(category, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'success': True, 'message': 'Category updated successfully'})
+    return Response({'success': False, 'message': 'Invalid data', 'errors': serializer.errors}, status=400)

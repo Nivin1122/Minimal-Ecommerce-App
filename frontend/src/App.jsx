@@ -21,6 +21,10 @@ import UserAddress from './userscomponents/orders/UserAddress'
 import UserCheckout from './userscomponents/orders/UserCheckout'
 import UserOrders from './userscomponents/orders/UserOrders'
 import PaymentResult from './userscomponents/orders/PaymentResult'
+import AdminAddCategory from './admincomponents/category/AdminAddCategory'
+import AdminCategoryList from './admincomponents/category/AdminCategoryList'
+import AdminEditCategory from './admincomponents/category/AdminEditCategory'
+
 
 
 function App() {
@@ -98,7 +102,25 @@ function App() {
                   <AdminEditProduct />
                 </AdminPrivateRoute>
               }/>
+
+            <Route path="/admin/add-category" element={
+              <AdminPrivateRoute>
+                <AdminAddCategory />
+              </AdminPrivateRoute>
+              }/>
+
+            <Route path="/admin/category/list" element={
+              <AdminPrivateRoute>
+                <AdminCategoryList />
+              </AdminPrivateRoute>
+              }/>
         
+            <Route path="/admin/category/edit/:id" element={
+              <AdminPrivateRoute>
+                <AdminEditCategory />
+              </AdminPrivateRoute>
+              }/>
+
           </Routes>
         </Router>
     </>
