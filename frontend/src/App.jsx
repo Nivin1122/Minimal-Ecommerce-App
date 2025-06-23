@@ -20,6 +20,7 @@ import UserCart from './userscomponents/products/UserCart'
 import UserAddress from './userscomponents/orders/UserAddress'
 import UserCheckout from './userscomponents/orders/UserCheckout'
 import UserOrders from './userscomponents/orders/UserOrders'
+import PaymentResult from './userscomponents/orders/PaymentResult'
 
 
 function App() {
@@ -66,9 +67,11 @@ function App() {
                 <UserOrders />
               </PrivateRoute>
               }/>
-      
+            
+            <Route path="/payment-success" element={<PaymentResult  />} />
+            <Route path="/payment-cancel" element={<PaymentResult />} />
 
-      
+
 
             {/* admin */}
             <Route path='admin/login' element={<AdminLogin />}/>

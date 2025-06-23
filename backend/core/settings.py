@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from dotenv import load_dotenv
 from pathlib import Path
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -60,6 +64,14 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173"
 ]
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51RcqiJKrAJuSgafkTXAp7JTYirDSgRktuD7JNlc4TUItx177rsMG774xse2nH4uzqtQbpY7UtUz9xIIsRD3oCOdb00joclPj44'
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+
+# STRIPE_WEBHOOK_SECRET = 'whsec_32a4698a6575eb7075b292c26917699d81478587248288306ae899b61e6145ad'
+                        
+
+CURRENT_DOMAIN = 'http://localhost:5173'
 
 CORS_ALLOW_CREDENTIALS = True
 
