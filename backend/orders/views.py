@@ -11,7 +11,6 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-# from .utils import create_order_from_stripe_checkout
 
 import requests
 
@@ -108,44 +107,37 @@ def check_payment_status(request):
     session_id = request.data.get("sessionId")
 
     if session_id:
-
         url = f"https://api.stripe.com/v1/checkout/sessions/{session_id}"
-        
         headers = {
             "Authorization": f"Bearer {settings.STRIPE_SECRET_KEY}",
             "Content-Type": "application/x-www-form-urlencoded"
         }
 
         try:
-         
             response = requests.get(url, headers=headers)
-            
-            # Check if request was successful
+
             if response.status_code == 200:
                 session_data = response.json()
                 amount_total = session_data.get("amount_total")
+                metadata = session_data.get("metadata", {})
+
+                address_id = metadata.get("address_id")
+                try:
+                    address = Address.objects.get(id=address_id, user=request.user)
+                except Address.DoesNotExist:
+                    return Response({'success': False, 'message': 'Address not found'}, status=400)
+
                 cart_items = CartItem.objects.filter(user=request.user)
-                cart_total = 0
-                print(cart_items)
-                for item in cart_items:
-                    print(item.product.price)
-                    cart_total += item.product.price*item.quantity
+                cart_total = sum(item.product.price * item.quantity for item in cart_items) * 100
 
-                cart_total*=100
-                if(amount_total == cart_total):
-                    address = Address.objects.all().first()
-
-                    cart_items = CartItem.objects.filter(user=request.user)
-                    if not cart_items.exists():
-                        return Response({'success': False, 'message': 'Cart is empty'}, status=400)
-
-                    total_price = sum(item.product.price * item.quantity for item in cart_items)
+                if amount_total == int(cart_total):
+                    total_price = cart_total / 100 
 
                     order = Order.objects.create(
                         user=request.user,
                         address=address,
                         total_price=total_price,
-                        payment_mode='COD'
+                        payment_mode='Stripe', 
                     )
 
                     for item in cart_items:
@@ -157,14 +149,14 @@ def check_payment_status(request):
                         )
 
                     cart_items.delete()
+                    return Response({'success': True, 'message': "Payment confirmed."})
                 else:
-                    print(amount_total, cart_total)
-                    return Response({'success': False, 'message': "Amount doesnt match. Support team will contact you soon."}, status=400)
-                return Response({'success': True, 'message': "Payment confirmed."})
+                    return Response({'success': False, 'message': "Amount mismatch. Contact support."}, status=400)
             else:
-                return Response({'success': False, 'message': "Some error in the payment. Support team will contact you soon."}, status=400)
-        except:
-            return Response({'success': False, 'message': "Some error in the payment. Support team will contact you soon."}, status=400)
-        
-    else:
-        return Response({'success': False, 'message': "Some error in the payment. Support team will contact you soon."}, status=400)
+                return Response({'success': False, 'message': "Payment verification failed."}, status=400)
+
+        except Exception as e:
+            print(f"Stripe check error: {e}")
+            return Response({'success': False, 'message': "Internal error. Try again."}, status=500)
+
+    return Response({'success': False, 'message': "Session ID missing."}, status=400)
