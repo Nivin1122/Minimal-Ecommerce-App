@@ -24,6 +24,7 @@ import PaymentResult from './userscomponents/orders/PaymentResult'
 import AdminAddCategory from './admincomponents/category/AdminAddCategory'
 import AdminCategoryList from './admincomponents/category/AdminCategoryList'
 import AdminEditCategory from './admincomponents/category/AdminEditCategory'
+import AdminOrders from './admincomponents/orders/AdminOrders'
 
 
 
@@ -120,6 +121,13 @@ function App() {
                 <AdminEditCategory />
               </AdminPrivateRoute>
               }/>
+
+              <Route path="/admin/orders" element={
+                <AdminPrivateRoute>
+                  <AdminOrders />
+                </AdminPrivateRoute>
+                }/>
+
 
           </Routes>
         </Router>

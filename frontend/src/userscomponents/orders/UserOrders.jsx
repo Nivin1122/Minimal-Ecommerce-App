@@ -5,7 +5,7 @@ const UserOrders = () => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    axiosInstance.get('/orders/user-orders/')
+    axiosInstance.get('admindashboard/orders/user-orders/')
       .then(res => setOrders(res.data.orders))
       .catch(err => console.error('Failed to fetch orders', err));
   }, []);

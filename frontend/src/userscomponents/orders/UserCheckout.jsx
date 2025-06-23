@@ -23,7 +23,7 @@ const UserCheckout = () => {
     setMessage('');
 
     try {
-      const res = await axiosInstance.post('orders/stripe/create-checkout/', { 
+      const res = await axiosInstance.post('admindashboard/orders/stripe/create-checkout/', { 
         address_id: selectedAddress 
       });
       
@@ -78,7 +78,7 @@ const UserCheckout = () => {
     setMessage('');
 
     try {
-      const res = await axiosInstance.post('orders/place-order/', {
+      const res = await axiosInstance.post('admindashboard/orders/place-order/', {
         address_id: selectedAddress
       });
       

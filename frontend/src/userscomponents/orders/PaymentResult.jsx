@@ -22,7 +22,7 @@ const PaymentResult = () => {
       if (sessionId) {
         setStatus('success');
         setMessage('Payment successful! Your order has been placed.');
-        axiosInstance.post('orders/stripe/payment-status/',{sessionId})
+        axiosInstance.post('admindashboard/orders/stripe/payment-status/',{sessionId})
         .then(res => {
           alert(res.data.message)
         })

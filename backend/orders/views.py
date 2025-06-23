@@ -11,6 +11,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from rest_framework.permissions import IsAdminUser
 
 import requests
 
@@ -61,6 +62,22 @@ def list_user_orders(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     serializer = OrderSerializer(orders, many=True)
     return Response({'orders': serializer.data})
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def update_order_status(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        new_status = request.data.get('status')
+        if new_status not in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']:
+            return Response({'success': False, 'message': 'Invalid status'}, status=400)
+
+        order.status = new_status
+        order.save()
+        return Response({'success': True, 'message': 'Order status updated successfully'})
+    except Order.DoesNotExist:
+        return Response({'success': False, 'message': 'Order not found'}, status=404)
 
 
 @api_view(['POST'])
@@ -160,3 +177,12 @@ def check_payment_status(request):
             return Response({'success': False, 'message': "Internal error. Try again."}, status=500)
 
     return Response({'success': False, 'message': "Session ID missing."}, status=400)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def list_all_orders(request):
+    orders = Order.objects.all().order_by('-created_at')
+    serializer = OrderSerializer(orders, many=True)
+    return Response({'orders': serializer.data})
