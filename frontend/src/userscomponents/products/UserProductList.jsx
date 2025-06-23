@@ -74,6 +74,7 @@ const UserProductList = () => {
               style={{ width: '100%', height: 'auto' }}
             />
             <h4>{product.name}</h4>
+            <p>Category: {product.category_name}</p>
             <p>{product.description}</p>
             <p><strong>₹{product.price}</strong></p>
 

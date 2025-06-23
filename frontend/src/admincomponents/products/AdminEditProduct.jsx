@@ -10,23 +10,25 @@ const AdminEditProduct = () => {
     name: '',
     description: '',
     price: '',
+    category: ''
   });
 
   const [image, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
   const [message, setMessage] = useState('');
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await adminAxiosInstance.get('/products/list/');
         const targetProduct = res.data.products.find(p => p.id === parseInt(id));
-
         if (targetProduct) {
           setProduct({
             name: targetProduct.name,
             description: targetProduct.description,
             price: targetProduct.price,
+            category: targetProduct.category, // should be ID
           });
           setExistingImage(`http://localhost:8000${targetProduct.image}`);
         } else {
@@ -38,7 +40,19 @@ const AdminEditProduct = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const res = await adminAxiosInstance.get('/products/category/list/');
+        if (res.data.categories) {
+          setCategories(res.data.categories);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories');
+      }
+    };
+
     fetchProduct();
+    fetchCategories();
   }, [id]);
 
   const handleChange = e => {
@@ -55,7 +69,11 @@ const AdminEditProduct = () => {
     formData.append('name', product.name);
     formData.append('description', product.description);
     formData.append('price', product.price);
-    if (image) formData.append('image', image);
+    formData.append('category', product.category); // ✅ append category
+
+    if (image) {
+      formData.append('image', image);
+    }
 
     try {
       const res = await adminAxiosInstance.put(`/products/edit/${id}/`, formData);
@@ -100,7 +118,19 @@ const AdminEditProduct = () => {
           step="0.01"
           required
         />
-        
+
+        <select
+          name="category"
+          value={product.category}
+          onChange={handleChange}
+          required
+        >
+          <option value="">-- Select Category --</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+
         <input
           type="file"
           name="image"

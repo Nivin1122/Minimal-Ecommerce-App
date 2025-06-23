@@ -57,7 +57,9 @@ const AdminProductList = () => {
             />
             <h4>{product.name}</h4>
             <p>{product.description}</p>
+            <p><strong>Category:</strong> {product.category_name}</p>
             <p><strong>₹{product.price}</strong></p>
+
 
             {/* Edit Button */}
             <Link to={`/admin/products/edit/${product.id}`}>

@@ -4,9 +4,13 @@ from .models import CartItem,Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+
+    
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['id', 'name', 'description', 'price', 'image', 'category', 'category_name']
 
     
 class CartItemSerializer(serializers.ModelSerializer):
