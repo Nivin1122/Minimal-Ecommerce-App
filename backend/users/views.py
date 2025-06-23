@@ -11,8 +11,41 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .models import Address
 from .serializer import AddressSerializer
 
+import google.oauth2.id_token
+import google.auth.transport.requests
+from django.conf import settings
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 # Create your views here.
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_login(request):
+    token = request.data.get('id_token')
+    if not token:
+        return Response({'success': False, 'message': 'Missing token'}, status=400)
+
+    try:
+        idinfo = google.oauth2.id_token.verify_oauth2_token(
+            token, google.auth.transport.requests.Request(), settings.GOOGLE_CLIENT_ID
+        )
+        email = idinfo.get('email')
+        username = email.split('@')[0]
+
+        user, _ = User.objects.get_or_create(email=email, defaults={'username': username})
+        refresh = RefreshToken.for_user(user)
+
+        res = Response({'success': True})
+        res.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=False, samesite='Lax', path='/')
+        res.set_cookie('refresh_token', str(refresh), httponly=True, secure=False, samesite='Lax', path='/')
+        return res
+
+    except ValueError:
+        return Response({'success': False, 'message': 'Invalid token'}, status=400)
+
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

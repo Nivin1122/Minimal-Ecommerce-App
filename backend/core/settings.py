@@ -65,6 +65,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173"
 ]
 
+GOOGLE_CLIENT_ID = '894699383557-mklh0dl7fdhu5sbqffcj6oqkuklseef0.apps.googleusercontent.com'
+
+
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51RcqiJKrAJuSgafkTXAp7JTYirDSgRktuD7JNlc4TUItx177rsMG774xse2nH4uzqtQbpY7UtUz9xIIsRD3oCOdb00joclPj44'
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 

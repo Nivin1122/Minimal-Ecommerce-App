@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { login } from '../../endpoints/api';
 import { useNavigate } from 'react-router-dom';
+import GoogleLoginButton from './GoogleLoginButton';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Login = () => {
   };
 
   return (
+    <>
     <form onSubmit={handleLogin}>
       <label>Username:</label><br />
       <input type="text" name="username" value={formData.username} onChange={handleChange} required />
@@ -31,6 +33,11 @@ const Login = () => {
       <br /><br />
       <button type="submit">Login</button>
     </form>
+    <hr />
+    <p>or</p>
+    <GoogleLoginButton />
+    </>
+
   );
 };
 

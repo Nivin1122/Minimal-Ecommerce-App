@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { signup } from '../../endpoints/api';
+import GoogleLoginButton from './GoogleLoginButton';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -182,6 +183,9 @@ const Signup = () => {
           Already have an account? <a href="/login">Log in here</a>
         </small>
       </div>
+      <hr />
+      <p>or</p>
+      <GoogleLoginButton />
     </div>
   );
 };

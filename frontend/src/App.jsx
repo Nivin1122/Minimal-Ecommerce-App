@@ -25,6 +25,7 @@ import AdminAddCategory from './admincomponents/category/AdminAddCategory'
 import AdminCategoryList from './admincomponents/category/AdminCategoryList'
 import AdminEditCategory from './admincomponents/category/AdminEditCategory'
 import AdminOrders from './admincomponents/orders/AdminOrders'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 
 
@@ -32,6 +33,7 @@ function App() {
 
   return (
     <>
+      <GoogleOAuthProvider clientId="894699383557-mklh0dl7fdhu5sbqffcj6oqkuklseef0.apps.googleusercontent.com">
         <Router>
           <Routes>
             {/* users */}
@@ -131,6 +133,7 @@ function App() {
 
           </Routes>
         </Router>
+        </GoogleOAuthProvider>
     </>
   )
 }
