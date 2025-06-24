@@ -67,6 +67,14 @@ CORS_ALLOWED_ORIGINS = [
 
 GOOGLE_CLIENT_ID = '894699383557-mklh0dl7fdhu5sbqffcj6oqkuklseef0.apps.googleusercontent.com'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bnivin71@gmail.com'
+EMAIL_HOST_PASSWORD = 'iapvrqnpireufotx'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51RcqiJKrAJuSgafkTXAp7JTYirDSgRktuD7JNlc4TUItx177rsMG774xse2nH4uzqtQbpY7UtUz9xIIsRD3oCOdb00joclPj44'
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")

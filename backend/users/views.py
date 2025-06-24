@@ -17,6 +17,10 @@ from django.conf import settings
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.core.mail import send_mail
+import random
+from django.core.cache import cache
+
 
 # Create your views here.
 
@@ -44,6 +48,27 @@ def google_login(request):
 
     except ValueError:
         return Response({'success': False, 'message': 'Invalid token'}, status=400)
+    
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def send_otp(request):
+    email = request.data.get('email')
+    if not email:
+        return Response({'success': False, 'message': 'Email is required'}, status=400)
+
+    otp = str(random.randint(100000, 999999))
+    cache.set(email, otp, timeout=300)  # store OTP for 5 minutes
+
+    # Send email
+    send_mail(
+        'Your OTP Code',
+        f'Your OTP is: {otp}',
+        'no-reply@example.com',
+        [email],
+        fail_silently=False,
+    )
+    return Response({'success': True, 'message': 'OTP sent successfully'})
 
 
 
@@ -140,7 +165,15 @@ def is_authenticated(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    serializer = UserRegistrationSerializer(data=request.data)
+    data = request.data
+    otp_from_user = data.get('otp')
+    email = data.get('email')
+    otp_stored = cache.get(email)
+
+    if otp_stored != otp_from_user:
+        return Response({'success': False, 'message': 'Invalid or expired OTP'}, status=400)
+
+    serializer = UserRegistrationSerializer(data=data)
     if serializer.is_valid():
         user = serializer.save()
         return Response({
@@ -151,8 +184,9 @@ def register(request):
                 'email': user.email
             }
         }, status=201)
-    
-    return Response(serializer.errors, status=400)
+
+    return Response({'success': False, 'errors': serializer.errors}, status=400)
+
 
 
 @api_view(['GET'])

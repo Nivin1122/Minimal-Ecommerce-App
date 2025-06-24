@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
-import { signup } from '../../endpoints/api';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import GoogleLoginButton from './GoogleLoginButton';
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
-  });
-  
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', otp: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-    
-  
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleSendOtp = async () => {
+    try {
+      setIsLoading(true);
+      await axios.post('http://localhost:8000/users/send-otp/', { email: formData.email });
+      setOtpSent(true);
+      alert('OTP sent to your email');
+    } catch (err) {
+      setErrors({ email: 'Failed to send OTP. Try valid email.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -33,156 +35,61 @@ const Signup = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
-    
-    console.log('Attempting signup with:', formData.username, formData.email);
-    
+
     try {
-      const result = await signup(formData.username, formData.email, formData.password);
-      
-      if (result.success) {
-        console.log('✅ Signup successful!');
+      const res = await axios.post('http://localhost:8000/users/register/', formData);
+      if (res.data.success) {
         setSignupSuccess(true);
-        setFormData({ username: '', email: '', password: '' });
+        setFormData({ username: '', email: '', password: '', otp: '' });
+        navigate('/login');
       } else {
-        console.log('❌ Signup failed:', result.errors);
-        setErrors(result.errors || {});
+        setErrors(res.data.errors || {});
       }
-    } catch (error) {
-      console.error('Signup error:', error);
-      setErrors({ message: 'An unexpected error occurred' });
+    } catch (err) {
+      setErrors({ message: 'Something went wrong.' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (signupSuccess) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h2>✅ Account Created Successfully!</h2>
-        <p>Your account has been created. You can now log in with your credentials.</p>
-        <button 
-          onClick={() => setSignupSuccess(false)}
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Create Another Account
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
       <h2>Create Account</h2>
-      
-      {errors.message && (
-        <div style={{ 
-          backgroundColor: '#f8d7da', 
-          color: '#721c24', 
-          padding: '10px', 
-          borderRadius: '4px', 
-          marginBottom: '15px' 
-        }}>
-          {errors.message}
-        </div>
-      )}
-      
+
+      {errors.message && <div style={{ color: 'red' }}>{errors.message}</div>}
+
       <form onSubmit={handleSignup}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '8px', 
-              border: errors.username ? '1px solid red' : '1px solid #ccc',
-              borderRadius: '4px'
-            }}
-          />
-          {errors.username && (
-            <small style={{ color: 'red' }}>
-              {Array.isArray(errors.username) ? errors.username.join(', ') : errors.username}
-            </small>
-          )}
+        <div>
+          <label>Username:</label>
+          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
+          {errors.username && <small style={{ color: 'red' }}>{errors.username}</small>}
         </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '8px', 
-              border: errors.email ? '1px solid red' : '1px solid #ccc',
-              borderRadius: '4px'
-            }}
-          />
-          {errors.email && (
-            <small style={{ color: 'red' }}>
-              {Array.isArray(errors.email) ? errors.email.join(', ') : errors.email}
-            </small>
-          )}
+
+        <div>
+          <label>Email:</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <button type="button" onClick={handleSendOtp} disabled={isLoading}>Send OTP</button>
+          {errors.email && <small style={{ color: 'red' }}>{errors.email}</small>}
         </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '8px', 
-              border: errors.password ? '1px solid red' : '1px solid #ccc',
-              borderRadius: '4px'
-            }}
-          />
-          {errors.password && (
-            <small style={{ color: 'red' }}>
-              {Array.isArray(errors.password) ? errors.password.join(', ') : errors.password}
-            </small>
-          )}
+
+        {otpSent && (
+          <div>
+            <label>OTP:</label>
+            <input type="text" name="otp" value={formData.otp} onChange={handleChange} required />
+          </div>
+        )}
+
+        <div>
+          <label>Password:</label>
+          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+          {errors.password && <small style={{ color: 'red' }}>{errors.password}</small>}
         </div>
-        
-        <button 
-          type="submit" 
-          disabled={isLoading}
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            backgroundColor: isLoading ? '#6c757d' : '#28a745',
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontSize: '16px'
-          }}
-        >
+
+        <button type="submit" disabled={isLoading || !otpSent}>
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>
-      
-      <div style={{ marginTop: '15px', textAlign: 'center' }}>
-        <small>
-          Already have an account? <a href="/login">Log in here</a>
-        </small>
-      </div>
+
       <hr />
       <p>or</p>
       <GoogleLoginButton />
