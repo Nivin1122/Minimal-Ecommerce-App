@@ -80,6 +80,19 @@ STRIPE_PUBLISHABLE_KEY = 'pk_test_51RcqiJKrAJuSgafkTXAp7JTYirDSgRktuD7JNlc4TUItx
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 
 # STRIPE_WEBHOOK_SECRET = 'whsec_32a4698a6575eb7075b292c26917699d81478587248288306ae899b61e6145ad'
+
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Add this line
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'  # Add this line
+CELERY_TIMEZONE = 'UTC'  # Add this line
+CELERY_ENABLE_UTC = True  # Add this line
+
+# Optional: Task result expiry
+CELERY_RESULT_EXPIRES = 3600
                         
 
 CURRENT_DOMAIN = 'http://localhost:5173'

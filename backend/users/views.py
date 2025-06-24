@@ -8,7 +8,7 @@ from .serializer import UserRegistrationSerializer
 
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 
-from .models import Address
+from .models import Address,EmailOTP
 from .serializer import AddressSerializer
 
 import google.oauth2.id_token
@@ -21,8 +21,18 @@ from django.core.mail import send_mail
 import random
 from django.core.cache import cache
 
+from .tasks import delete_otp_after_5_minutes
+from django.utils.timezone import now
+
+import logging
+
+
+
 
 # Create your views here.
+
+logger = logging.getLogger(__name__)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -57,18 +67,45 @@ def send_otp(request):
     if not email:
         return Response({'success': False, 'message': 'Email is required'}, status=400)
 
-    otp = str(random.randint(100000, 999999))
-    cache.set(email, otp, timeout=300)  # store OTP for 5 minutes
+    try:
+        # Generate OTP
+        otp = str(random.randint(100000, 999999))
 
-    # Send email
-    send_mail(
-        'Your OTP Code',
-        f'Your OTP is: {otp}',
-        'no-reply@example.com',
-        [email],
-        fail_silently=False,
-    )
-    return Response({'success': True, 'message': 'OTP sent successfully'})
+        # Delete any existing OTPs for this email first
+        EmailOTP.objects.filter(email=email).delete()
+
+        # Save new OTP in database
+        EmailOTP.objects.create(email=email, otp=otp)
+
+        # Schedule Celery task to delete OTP after 5 minutes (300 seconds)
+        task_result = delete_otp_after_5_minutes.apply_async(
+            args=[email], 
+            countdown=300  # 5 minutes = 300 seconds
+        )
+        
+        logger.info(f"📧 OTP created for {email}, scheduled deletion task: {task_result.id}")
+
+        # Send email
+        send_mail(
+            'Your OTP Code',
+            f'Your OTP is: {otp}. This OTP will expire in 5 minutes.',
+            'no-reply@example.com',
+            [email],
+            fail_silently=False,
+        )
+        
+        return Response({
+            'success': True, 
+            'message': 'OTP sent successfully. Valid for 5 minutes.',
+            'task_id': task_result.id  # Optional: return task ID for tracking
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error sending OTP to {email}: {str(e)}")
+        return Response({
+            'success': False, 
+            'message': 'Failed to send OTP. Please try again.'
+        }, status=500)
 
 
 
@@ -162,30 +199,85 @@ def is_authenticated(request):
 
 
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    data = request.data
-    otp_from_user = data.get('otp')
-    email = data.get('email')
-    otp_stored = cache.get(email)
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    otp = request.data.get('otp')
 
-    if otp_stored != otp_from_user:
-        return Response({'success': False, 'message': 'Invalid or expired OTP'}, status=400)
-
-    serializer = UserRegistrationSerializer(data=data)
-    if serializer.is_valid():
-        user = serializer.save()
+    # Validate required fields
+    if not all([username, email, password, otp]):
         return Response({
-            'success': True,
-            'message': 'User created successfully',
-            'user': {
-                'username': user.username,
-                'email': user.email
-            }
-        }, status=201)
+            'success': False, 
+            'message': 'All fields are required'
+        }, status=400)
 
-    return Response({'success': False, 'errors': serializer.errors}, status=400)
+    try:
+        # Get the latest OTP for this email
+        otp_entry = EmailOTP.objects.filter(email=email).latest('created_at')
+        
+        # Check if OTP is expired
+        if otp_entry.is_expired():
+            EmailOTP.objects.filter(email=email).delete()  # Clean up expired OTP
+            return Response({
+                'success': False, 
+                'message': 'OTP has expired. Please request a new one.'
+            }, status=400)
+            
+    except EmailOTP.DoesNotExist:
+        return Response({
+            'success': False, 
+            'message': 'OTP not found or expired. Please request a new one.'
+        }, status=400)
+
+    # Verify OTP
+    if otp_entry.otp != otp:
+        return Response({
+            'success': False, 
+            'message': 'Incorrect OTP'
+        }, status=400)
+
+    try:
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            return Response({
+                'success': False, 
+                'message': 'Username already exists'
+            }, status=400)
+            
+        if User.objects.filter(email=email).exists():
+            return Response({
+                'success': False, 
+                'message': 'Email already registered'
+            }, status=400)
+
+        # Create user
+        user = User.objects.create_user(
+            username=username, 
+            email=email, 
+            password=password
+        )
+
+        # Clean up all OTPs for this email
+        EmailOTP.objects.filter(email=email).delete()
+
+        logger.info(f"✅ User registered successfully: {username} ({email})")
+
+        return Response({
+            'success': True, 
+            'message': 'Account created successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error creating user {username}: {str(e)}")
+        return Response({
+            'success': False, 
+            'message': 'Failed to create account. Please try again.'
+        }, status=500)
+
 
 
 
