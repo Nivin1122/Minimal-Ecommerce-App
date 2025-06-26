@@ -205,7 +205,12 @@ def logout(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def is_authenticated(request):
-    return Response({'authenticated':True})
+    return Response({
+        'authenticated': True,
+        'is_staff': request.user.is_staff,
+        'is_superuser': request.user.is_superuser,
+        'username': request.user.username
+    })
 
 
 
