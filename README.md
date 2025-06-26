@@ -102,6 +102,8 @@ The frontend will run at [http://localhost:5173](http://localhost:5173).
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Stripe](https://stripe.com/)
 - [Vite](https://vitejs.dev/)
+- [Redis](https://redis.io/docs/latest/)
+- [celery](https://pypi.org/project/django-celery/)
 
 ---
 
