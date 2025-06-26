@@ -71,6 +71,15 @@ const Login = () => {
           <div className="flex-grow h-px bg-violet-900"></div>
         </div>
         <GoogleLoginButton />
+        <p className="text-center text-violet-900 mt-4">
+          Don't have an account?{' '}
+          <span
+            className="text-violet-700 font-semibold cursor-pointer hover:underline"
+            onClick={() => navigate('/signup')}
+          >
+            Sign up
+          </span>
+        </p>
       </div>
     </div>
   );
