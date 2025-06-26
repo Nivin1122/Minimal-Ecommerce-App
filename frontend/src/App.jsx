@@ -28,7 +28,9 @@ import AdminEditCategory from './admincomponents/category/AdminEditCategory'
 import AdminOrders from './admincomponents/orders/AdminOrders'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Navbar from './userscomponents/pages/Navbar'
-import AdminLayout from './admincomponents/layout/AdminLayout'
+import AdminLayout from './admincomponents/layout/AdminLayout'      
+import UserProductDetail from './userscomponents/products/UserProductDetail'
+
 
 // Layout component for user pages with navbar
 const UserLayout = ({ children }) => {
@@ -59,6 +61,7 @@ function App() {
               </UserLayout>
             </PrivateRoute>
             }/>
+            <Route path="/products/:id" element={<UserProductDetail />} />
             <Route path="/dashboard" element={
             <PrivateRoute>
               <UserLayout>

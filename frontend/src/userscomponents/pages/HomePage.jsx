@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../../endpoints/axiosInstance';
+import UserProductDetail from '../products/UserProductDetail';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -151,7 +152,11 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                <Link
+                  key={product.id}
+                  to={`/products/${product.id}`}
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden block"
+                >
                   <div className="relative">
                     <img
                       src={`http://localhost:8000${product.image}`}
@@ -171,28 +176,8 @@ const HomePage = () => {
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                       {product.description}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-blue-600">
-                        ₹{product.price}
-                      </span>
-                      {cartProductIds.includes(product.id) ? (
-                        <button
-                          disabled
-                          className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg font-medium cursor-not-allowed"
-                        >
-                          In Cart
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleAddToCart(product.id)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-                        >
-                          Add to Cart
-                        </button>
-                      )}
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

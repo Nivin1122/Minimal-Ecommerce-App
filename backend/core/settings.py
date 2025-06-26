@@ -134,13 +134,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecom_db',                      # The database name you created in Step 1
+        'USER': 'ecom_user',                   # The user you created in Step 1
+        'PASSWORD': '1921u0030',    # The password you set in Step 1
+        'HOST': 'localhost',                   # Or '127.0.0.1'
+        'PORT': '5432',                        # Default PostgreSQL port
     }
 }
 
