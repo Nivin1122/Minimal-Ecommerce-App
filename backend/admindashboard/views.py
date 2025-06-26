@@ -2,11 +2,16 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from products.models import Product, Category
+from orders.models import Order, OrderItem
+from django.db.models import Sum, Count
+from orders.serializers import OrderSerializer
+from decimal import Decimal
 
 
 class AdminTokenObtainPairView(TokenObtainPairView):
@@ -139,3 +144,41 @@ def is_admin_authenticated(request):
     except Exception as e:
         print(f"Admin auth check error: {e}")
         return Response({'authenticated': False, 'message': 'Authentication check failed'}, status=500)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_dashboard_stats(request):
+    total_products = Product.objects.count()
+    total_categories = Category.objects.count()
+    
+    order_stats = Order.objects.aggregate(
+        total_sales=Sum('total_price'),
+        total_orders=Count('id')
+    )
+    
+    total_sales = order_stats.get('total_sales') or 0
+    total_orders = order_stats.get('total_orders') or 0
+    
+    # Calculate profit (e.g., 25% margin)
+    if total_sales:
+        total_profit = total_sales * Decimal('0.25')
+    else:
+        total_profit = 0
+    
+    # Get recent orders
+    recent_orders = Order.objects.order_by('-created_at')[:5]
+    recent_orders_serializer = OrderSerializer(recent_orders, many=True)
+    
+    stats = {
+        'total_products': total_products,
+        'total_categories': total_categories,
+        'total_orders': total_orders,
+        'total_sales': total_sales,
+        'total_profit': total_profit,
+        'recent_orders': recent_orders_serializer.data,
+    }
+    
+    return Response(stats)
+
+

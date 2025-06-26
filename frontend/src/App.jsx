@@ -7,6 +7,7 @@ import Login from './userscomponents/auth/Login'
 import { BrowserRouter as Router,Routes,Route } from 'react-router-dom'
 import Signup from './userscomponents/auth/Signup'
 import Dashboard from './userscomponents/pages/Dashboard'
+import HomePage from './userscomponents/pages/HomePage'
 import PrivateRoute from './privateRoutes/PrivateRoute'
 // import AdminLogin from './admincomponents/AdminLogin'
 import AdminLogin from './admincomponents/auth/AdminLogin'
@@ -26,8 +27,20 @@ import AdminCategoryList from './admincomponents/category/AdminCategoryList'
 import AdminEditCategory from './admincomponents/category/AdminEditCategory'
 import AdminOrders from './admincomponents/orders/AdminOrders'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import Navbar from './userscomponents/pages/Navbar'
+import AdminLayout from './admincomponents/layout/AdminLayout'
 
-
+// Layout component for user pages with navbar
+const UserLayout = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main>
+        {children}
+      </main>
+    </div>
+  );
+};
 
 function App() {
 
@@ -41,40 +54,67 @@ function App() {
             <Route path='/signup' element={<Signup />}/>
             <Route path="/" element={
             <PrivateRoute>
-              <Dashboard />
+              <UserLayout>
+                <HomePage />
+              </UserLayout>
+            </PrivateRoute>
+            }/>
+            <Route path="/dashboard" element={
+            <PrivateRoute>
+              <UserLayout>
+                <Dashboard />
+              </UserLayout>
             </PrivateRoute>
             }/>
             <Route path="/products"element={
               <PrivateRoute>
-                <UserProductList />
+                <UserLayout>
+                  <UserProductList />
+                </UserLayout>
               </PrivateRoute>
             }/>
 
             <Route path="/cart" element={
               <PrivateRoute>
-                <UserCart />
+                <UserLayout>
+                  <UserCart />
+                </UserLayout>
               </PrivateRoute>
             }/>
 
             
             <Route path="/user/addresses" element={
               <PrivateRoute>
-                <UserAddress />
+                <UserLayout>
+                  <UserAddress />
+                </UserLayout>
               </PrivateRoute>
               }/>
 
             <Route path="/user/checkout" element={
               <PrivateRoute>
-                <UserCheckout />
+                <UserLayout>
+                  <UserCheckout />
+                </UserLayout>
               </PrivateRoute>
               } />
 
             <Route path="/user/orders" element={
               <PrivateRoute>
-                <UserOrders />
+                <UserLayout>
+                  <UserOrders />
+                </UserLayout>
               </PrivateRoute>
               }/>
             
+            <Route path="/payment-result" element={
+              <PrivateRoute>
+                <UserLayout>
+                  <PaymentResult />
+                </UserLayout>
+              </PrivateRoute>
+            }/>
+
             <Route path="/payment-success" element={<PaymentResult  />} />
             <Route path="/payment-cancel" element={<PaymentResult />} />
 
@@ -84,49 +124,65 @@ function App() {
             <Route path='admin/login' element={<AdminLogin />}/>
             <Route path="/admin/dashboard" element={
               <AdminPrivateRoute>
-                <AdminDashboard />
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
               </AdminPrivateRoute>
             }/>
 
             <Route path="/admin/add-product" element={
               <AdminPrivateRoute>
-                <AdminAddProduct />
+                <AdminLayout>
+                  <AdminAddProduct />
+                </AdminLayout>
               </AdminPrivateRoute>
             }/>
 
             <Route path="/admin/products" element={
-                <AdminPrivateRoute>
+              <AdminPrivateRoute>
+                <AdminLayout>
                   <AdminProductList />
-                </AdminPrivateRoute>
-              }/>
+                </AdminLayout>
+              </AdminPrivateRoute>
+            }/>
 
             <Route path="/admin/products/edit/:id" element={
-                <AdminPrivateRoute>
+              <AdminPrivateRoute>
+                <AdminLayout>
                   <AdminEditProduct />
-                </AdminPrivateRoute>
-              }/>
+                </AdminLayout>
+              </AdminPrivateRoute>
+            }/>
 
             <Route path="/admin/add-category" element={
               <AdminPrivateRoute>
-                <AdminAddCategory />
+                <AdminLayout>
+                  <AdminAddCategory />
+                </AdminLayout>
               </AdminPrivateRoute>
-              }/>
+            }/>
 
             <Route path="/admin/category/list" element={
               <AdminPrivateRoute>
-                <AdminCategoryList />
+                <AdminLayout>
+                  <AdminCategoryList />
+                </AdminLayout>
               </AdminPrivateRoute>
-              }/>
+            }/>
         
             <Route path="/admin/category/edit/:id" element={
               <AdminPrivateRoute>
-                <AdminEditCategory />
+                <AdminLayout>
+                  <AdminEditCategory />
+                </AdminLayout>
               </AdminPrivateRoute>
-              }/>
+            }/>
 
               <Route path="/admin/orders" element={
                 <AdminPrivateRoute>
-                  <AdminOrders />
+                  <AdminLayout>
+                    <AdminOrders />
+                  </AdminLayout>
                 </AdminPrivateRoute>
                 }/>
 

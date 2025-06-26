@@ -7,7 +7,7 @@ urlpatterns = [
     path('user-orders/', list_user_orders),
     path('all/', list_all_orders),
     path('stripe/create-checkout/', create_stripe_checkout),
-    path('stripe/payment-status/', check_payment_status),
+    path('check-payment-status/', check_payment_status),
     path('update-status/<int:order_id>/', update_order_status),
     
 ]

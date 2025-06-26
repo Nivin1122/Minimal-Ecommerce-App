@@ -50,11 +50,9 @@ const UserCheckout = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch cart items
         const cartRes = await axiosInstance.get('admindashboard/products/cart/list/');
         setCart(cartRes.data.cart || []);
 
-        // Fetch addresses
         const addressRes = await axiosInstance.get('users/address/list/');
         setAddresses(addressRes.data.addresses || []);
       } catch (error) {
@@ -98,108 +96,133 @@ const UserCheckout = () => {
 
   if (cart.length === 0 && addresses.length === 0) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h2>Loading...</h2>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h2>Checkout</h2>
-      {message && <p style={{ color: 'red', padding: '10px', backgroundColor: '#ffebee', borderRadius: '5px' }}>{message}</p>}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Checkout</h1>
+          <p className="text-lg text-gray-600">Complete your purchase</p>
+        </div>
 
-      <h3>Cart Items</h3>
-      {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <>
-          {cart.map(item => (
-            <div key={item.id} style={{ 
-              borderBottom: '1px solid #ccc', 
-              padding: '15px 0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <p style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>{item.product.name}</p>
-                <p style={{ margin: '0', color: '#666' }}>Price: ₹{item.product.price} × {item.quantity}</p>
+        {message && (
+          <div className="mb-6 text-center">
+            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              {message}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Cart Items */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Summary</h2>
+            {cart.length === 0 ? (
+              <p className="text-gray-500">Your cart is empty.</p>
+            ) : (
+              <div className="space-y-4">
+                {cart.map(item => (
+                  <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <img 
+                      src={`http://localhost:8000${item.product.image}`} 
+                      alt={item.product.name} 
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
+                      <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-bold text-blue-600">₹{(item.product.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                ))}
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center text-xl font-bold text-gray-900">
+                    <span>Total</span>
+                    <span className="text-blue-600">₹{totalPrice.toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
-              <p style={{ margin: '0', fontWeight: 'bold' }}>₹{(item.product.price * item.quantity).toFixed(2)}</p>
-            </div>
-          ))}
-          <h4 style={{ textAlign: 'right', marginTop: '20px', fontSize: '1.2em' }}>
-            Total Price: ₹{totalPrice.toFixed(2)}
-          </h4>
-        </>
-      )}
+            )}
+          </div>
 
-      <h3 style={{ marginTop: '30px' }}>Select Delivery Address</h3>
-      {addresses.length === 0 ? (
-        <p>No addresses found. Please add an address first.</p>
-      ) : (
-        <div>
-          {addresses.map(addr => (
-            <div key={addr.id} style={{ 
-              border: selectedAddress === addr.id ? '2px solid #4CAF50' : '1px solid #ddd', 
-              padding: '15px', 
-              margin: '10px 0',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-            onClick={() => setSelectedAddress(addr.id)}
-            >
-              <input
-                type="radio"
-                name="address"
-                value={addr.id}
-                checked={selectedAddress === addr.id}
-                onChange={() => setSelectedAddress(addr.id)}
-                style={{ marginRight: '10px' }}
-              />
-              <strong>{addr.full_name}</strong><br />
-              {addr.street}, {addr.city}, {addr.zip_code}
-            </div>
-          ))}
-        </div>
-      )}
+          {/* Address Selection */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Delivery Address</h2>
+            {addresses.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">No addresses found. Please add an address first.</p>
+                <button
+                  onClick={() => navigate('/user/addresses')}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                >
+                  Add Address
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {addresses.map(addr => (
+                  <div 
+                    key={addr.id} 
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors duration-200 ${
+                      selectedAddress === addr.id 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedAddress(addr.id)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="radio"
+                        name="address"
+                        value={addr.id}
+                        checked={selectedAddress === addr.id}
+                        onChange={() => setSelectedAddress(addr.id)}
+                        className="mt-1 text-blue-600"
+                      />
+                      <div>
+                        <p className="font-semibold text-gray-900">{addr.full_name}</p>
+                        <p className="text-gray-600 text-sm">{addr.street}</p>
+                        <p className="text-gray-600 text-sm">{addr.city}, {addr.state} {addr.postal_code}</p>
+                        <p className="text-gray-600 text-sm">{addr.country}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-      {cart.length > 0 && addresses.length > 0 && (
-        <div style={{ marginTop: '30px', display: 'flex', gap: '15px' }}>
-          <button 
-            onClick={handlePlaceOrder} 
-            disabled={loading || !selectedAddress}
-            style={{
-              backgroundColor: loading ? '#ccc' : '#4CAF50',
-              color: 'white',
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            {loading ? 'Processing...' : 'Place Order (Cash on Delivery)'}
-          </button>
-          
-          <button 
-            onClick={handleStripeCheckout}
-            disabled={loading || !selectedAddress}
-            style={{
-              backgroundColor: loading ? '#ccc' : '#6772E5',
-              color: 'white',
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            {loading ? 'Processing...' : 'Pay with Card (Stripe)'}
-          </button>
+            {/* Payment Buttons */}
+            {cart.length > 0 && addresses.length > 0 && (
+              <div className="mt-6 space-y-3">
+                <button 
+                  onClick={handlePlaceOrder} 
+                  disabled={loading || !selectedAddress}
+                  className="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {loading ? 'Processing...' : 'Place Order (Cash on Delivery)'}
+                </button>
+                
+                <button 
+                  onClick={handleStripeCheckout}
+                  disabled={loading || !selectedAddress}
+                  className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {loading ? 'Processing...' : 'Pay with Card (Stripe)'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
