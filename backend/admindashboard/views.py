@@ -166,7 +166,6 @@ def get_dashboard_stats(request):
     else:
         total_profit = 0
     
-    # Get recent orders
     recent_orders = Order.objects.order_by('-created_at')[:5]
     recent_orders_serializer = OrderSerializer(recent_orders, many=True)
     

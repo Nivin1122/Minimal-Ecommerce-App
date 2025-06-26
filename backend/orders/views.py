@@ -13,13 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 
-# Set Stripe API key from settings
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
-# This is your new, secure webhook endpoint secret. 
-# Generate it with the Stripe CLI: `stripe listen --forward-to localhost:8000/admindashboard/orders/stripe/webhook/`
-# And add it to your settings.py
-WEBHOOK_SECRET = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @api_view(['POST'])
@@ -64,7 +59,7 @@ def create_stripe_checkout(request):
     except Address.DoesNotExist:
         return Response({'success': False, 'message': 'Invalid address'}, status=400)
 
-    # Ensure CURRENT_DOMAIN is a valid URL in settings.py (e.g., 'http://localhost:3000')
+
     current_domain = getattr(settings, 'CURRENT_DOMAIN', None)
     if not current_domain or '://' not in current_domain:
         error_message = 'Server configuration error: CURRENT_DOMAIN is not a valid URL in settings.py.'
@@ -109,7 +104,7 @@ def check_payment_status(request):
             metadata = session.metadata
             address = Address.objects.get(id=metadata['address_id'], user=request.user)
             
-            # Check if order already exists for this session to prevent duplicates
+            
             if Order.objects.filter(stripe_session_id=session.id).exists():
                 return Response({'success': True, 'message': "Payment confirmed. Order already processed."})
 

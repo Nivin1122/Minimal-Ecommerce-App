@@ -68,19 +68,15 @@ def send_otp(request):
         return Response({'success': False, 'message': 'Email is required'}, status=400)
 
     try:
-        # Generate OTP
         otp = str(random.randint(100000, 999999))
 
-        # Delete any existing OTPs for this email first
         EmailOTP.objects.filter(email=email).delete()
 
-        # Save new OTP in database
         EmailOTP.objects.create(email=email, otp=otp)
 
-        # Schedule Celery task to delete OTP after 5 minutes (300 seconds)
         task_result = delete_otp_after_5_minutes.apply_async(
             args=[email], 
-            countdown=300  # 5 minutes = 300 seconds
+            countdown=300
         )
         
         logger.info(f"📧 OTP created for {email}, scheduled deletion task: {task_result.id}")
@@ -97,7 +93,7 @@ def send_otp(request):
         return Response({
             'success': True, 
             'message': 'OTP sent successfully. Valid for 5 minutes.',
-            'task_id': task_result.id  # Optional: return task ID for tracking
+            'task_id': task_result.id
         })
         
     except Exception as e:
@@ -216,12 +212,11 @@ def register(request):
         }, status=400)
 
     try:
-        # Get the latest OTP for this email
+    
         otp_entry = EmailOTP.objects.filter(email=email).latest('created_at')
-        
-        # Check if OTP is expired
+       
         if otp_entry.is_expired():
-            EmailOTP.objects.filter(email=email).delete()  # Clean up expired OTP
+            EmailOTP.objects.filter(email=email).delete()
             return Response({
                 'success': False, 
                 'message': 'OTP has expired. Please request a new one.'
@@ -241,7 +236,7 @@ def register(request):
         }, status=400)
 
     try:
-        # Check if user already exists
+       
         if User.objects.filter(username=username).exists():
             return Response({
                 'success': False, 
@@ -254,14 +249,14 @@ def register(request):
                 'message': 'Email already registered'
             }, status=400)
 
-        # Create user
+       
         user = User.objects.create_user(
             username=username, 
             email=email, 
             password=password
         )
 
-        # Clean up all OTPs for this email
+      
         EmailOTP.objects.filter(email=email).delete()
 
         logger.info(f"✅ User registered successfully: {username} ({email})")

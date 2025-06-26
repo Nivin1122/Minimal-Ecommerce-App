@@ -14,25 +14,18 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-87m&%#^&^7()*_0oq4jqlat1jbpp=$kv9cw#!*!3u+@y!9u7-&'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,33 +58,32 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173"
 ]
 
-GOOGLE_CLIENT_ID = '894699383557-mklh0dl7fdhu5sbqffcj6oqkuklseef0.apps.googleusercontent.com'
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'bnivin71@gmail.com'
-EMAIL_HOST_PASSWORD = 'iapvrqnpireufotx'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51RcqiJKrAJuSgafkTXAp7JTYirDSgRktuD7JNlc4TUItx177rsMG774xse2nH4uzqtQbpY7UtUz9xIIsRD3oCOdb00joclPj44'
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 
-# STRIPE_WEBHOOK_SECRET = 'whsec_32a4698a6575eb7075b292c26917699d81478587248288306ae899b61e6145ad'
 
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Add this line
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'  # Add this line
-CELERY_TIMEZONE = 'UTC'  # Add this line
-CELERY_ENABLE_UTC = True  # Add this line
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
 
-# Optional: Task result expiry
+
 CELERY_RESULT_EXPIRES = 3600
                         
 
@@ -138,17 +130,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecom_db',                      # The database name you created in Step 1
-        'USER': 'ecom_user',                   # The user you created in Step 1
-        'PASSWORD': '1921u0030',    # The password you set in Step 1
-        'HOST': 'localhost',                   # Or '127.0.0.1'
-        'PORT': '5432',                        # Default PostgreSQL port
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -166,8 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -178,12 +165,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
