@@ -1,31 +1,51 @@
+// components/AdminPrivateRoute.js
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import adminAxiosInstance from '../endpoints/adminAxiosInstance';
-
+import axiosInstance from '../endpoints/axiosInstance';
 
 const AdminPrivateRoute = ({ children }) => {
-  const [isAdmin, setIsAdmin] = useState(null);
+  const [authState, setAuthState] = useState({
+    loading: true,
+    isAuth: false,
+    isAdmin: false
+  });
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const response = await adminAxiosInstance.get('/authenticated/');
-        if (response.data.authenticated && response.data.user.is_staff) {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
-      } catch (error) {
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdmin();
+    axiosInstance.get('users/authenticated/')
+      .then(res => {
+        setAuthState({
+          loading: false,
+          isAuth: res.data.authenticated,
+          isAdmin: res.data.is_staff || res.data.is_superuser
+        });
+      })
+      .catch(error => {
+        setAuthState({
+          loading: false,
+          isAuth: false,
+          isAdmin: false
+        });
+      });
   }, []);
 
-  if (isAdmin === null) return <p>Checking admin access...</p>;
+  const { loading, isAuth, isAdmin } = authState;
 
-  return isAdmin ? children : <Navigate to="/admin/login" replace />;
+  if (loading) {
+    return <div>Checking admin access...</div>;
+  }
+
+  // Not authenticated - redirect to admin login
+  if (!isAuth) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  // Not admin - redirect to admin login
+  if (!isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  // Admin user - allow access
+  return children;
 };
 
 export default AdminPrivateRoute;
