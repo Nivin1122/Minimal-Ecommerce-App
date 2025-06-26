@@ -119,8 +119,22 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             print(f"Access token: {access_token[:20]}...")  
             print(f"Refresh token: {refresh_token[:20]}...")  
 
+            # Get user info
+            from rest_framework_simplejwt.tokens import AccessToken
+            decoded = AccessToken(access_token)
+            user_id = decoded['user_id']
+            from django.contrib.auth.models import User
+            user = User.objects.get(id=user_id)
+
             res = Response()
-            res.data = {'success': True}
+            res.data = {
+                'success': True,
+                'user': {
+                    'username': user.username,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser,
+                }
+            }
 
             res.set_cookie(
                 key="access_token",
